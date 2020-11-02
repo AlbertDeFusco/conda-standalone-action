@@ -102,7 +102,7 @@ async function run(): Promise<void> {
     const condaExe: string = result.data;
 
     // await exec.exec(`chmod +x ${condaExe}`);
-    fs.chmodSync(condaExe, fs.constants.S_IXUSR);
+    fs.chmodSync(condaExe, 0o755);
 
     const condaVersion: string = core.getInput("conda-version");
 

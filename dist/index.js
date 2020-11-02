@@ -160,7 +160,7 @@ function run() {
             }
             const condaExe = result.data;
             // await exec.exec(`chmod +x ${condaExe}`);
-            fs.chmodSync(condaExe, fs.constants.S_IXUSR);
+            fs.chmodSync(condaExe, 0o755);
             const condaVersion = core.getInput("conda-version");
             core.info(`Creating base environment with Conda ${condaVersion}`);
             let condaBase;
