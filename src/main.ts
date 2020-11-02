@@ -8,7 +8,7 @@ import * as tc from '@actions/tool-cache'
 // const IS_LINUX: boolean = process.platform === "linux";
 // const IS_UNIX: boolean = IS_MAC || IS_LINUX;
 const CONDA_STANDALONE_BASE_URL =
-  'https://repo.anaconda.com/pkgs/misc/conda-exec'
+  'https://repo.anaconda.com/pkgs/misc/conda-execs'
 
 interface ISucceedResult {
   ok: true;
@@ -68,7 +68,7 @@ async function downloadCondaStandalone(
     try {
       downloadPath = await tc.downloadTool(downloadURL, 'conda.exe');
       await io.mv(downloadPath, 'conda.exe');
-      core.info(`Caching Conda standalone`);
+      core.info(`Caching Conda standalone ${downloadPath}`);
 
       await tc.cacheFile('conda.exe', 'conda.exe',
         `CondaStandalone-${condaStandaloneVersion}-${arch}`,
