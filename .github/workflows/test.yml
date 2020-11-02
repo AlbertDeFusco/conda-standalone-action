@@ -21,4 +21,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: ./
         with:
-          milliseconds: 1000
+          conda-standalone-version: 'latest'
+        run: |
+          chmod +x conda.exe
+          ./conda.exe info
