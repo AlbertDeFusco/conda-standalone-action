@@ -24,4 +24,5 @@ jobs:
           conda-standalone-version: 'latest'
       - name: Info
         run: |
+          pwd
           ls -l ./conda.exe
