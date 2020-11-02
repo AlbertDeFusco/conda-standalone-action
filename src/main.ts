@@ -1,5 +1,6 @@
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
+import * as fs from "fs";
 import * as tc from '@actions/tool-cache';
 import { executionAsyncId } from 'async_hooks';
 // import {wait} from './wait'
@@ -100,7 +101,8 @@ async function run(): Promise<void> {
 
     const condaExe: string = result.data;
 
-    await exec.exec(`chmod +x ${condaExe}`);
+    // await exec.exec(`chmod +x ${condaExe}`);
+    fs.chmodSync(condaExe, fs.constants.S_IXUSR);
 
     const condaVersion: string = core.getInput("conda-version");
 

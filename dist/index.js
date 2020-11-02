@@ -98,7 +98,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(186));
-const exec = __importStar(__webpack_require__(514));
+const fs = __importStar(__webpack_require__(747));
 const tc = __importStar(__webpack_require__(784));
 // import {wait} from './wait'
 // const IS_WINDOWS: boolean = process.platform === "win32";
@@ -159,7 +159,8 @@ function run() {
                 throw result.error;
             }
             const condaExe = result.data;
-            yield exec.exec(`chmod +x ${condaExe}`);
+            // await exec.exec(`chmod +x ${condaExe}`);
+            fs.chmodSync(condaExe, fs.constants.S_IXUSR);
             const condaVersion = core.getInput("conda-version");
             core.info(`Creating base environment with Conda ${condaVersion}`);
             let condaBase;
