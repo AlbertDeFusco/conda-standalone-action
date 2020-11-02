@@ -98,6 +98,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(186));
+const exec = __importStar(__webpack_require__(514));
 const tc = __importStar(__webpack_require__(784));
 // import {wait} from './wait'
 // const IS_WINDOWS: boolean = process.platform === "win32";
@@ -140,7 +141,7 @@ function downloadCondaStandalone(condaStandaloneVersion, platform) {
                 downloadPath = yield tc.downloadTool(downloadURL, 'conda.exe');
                 core.debug(`Download successful ${downloadPath}`);
                 core.info(`Caching Conda standalone ${downloadPath}`);
-                yield tc.cacheFile('conda.exe', 'conda.exe', `CondaStandalone-${condaStandaloneVersion}-${arch}`, condaStandaloneVersion, arch);
+                yield tc.cacheFile("conda.exe", "conda.exe", `CondaStandalone-${condaStandaloneVersion}-${arch}`, condaStandaloneVersion, arch);
             }
             catch (err) {
                 return { ok: false, error: err };
@@ -152,16 +153,25 @@ function downloadCondaStandalone(condaStandaloneVersion, platform) {
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const condaStandaloneVersion = core.getInput('conda-standalone-version');
+            const condaStandaloneVersion = core.getInput("conda-standalone-version");
             const result = yield downloadCondaStandalone(condaStandaloneVersion, process.platform);
             if (!result.ok) {
                 throw result.error;
             }
-            // core.debug(`Going to download Dconda${ms} milliseconds ...`) // debug is only output if you set the secret `ACTIONS_RUNNER_DEBUG` to true
-            // core.debug(new Date().toTimeString())
-            // await wait(parseInt(ms, 10))
-            // core.debug(new Date().toTimeString())
-            // core.setOutput('time', new Date().toTimeString())
+            const condaExe = result.data;
+            yield exec.exec(`chmod +x ${condaExe}`);
+            const condaVersion = core.getInput("conda-version");
+            core.info(`Creating base environment with Conda ${condaVersion}`);
+            let condaBase;
+            if (condaVersion == 'latest') {
+                condaBase = 'conda';
+            }
+            else {
+                condaBase = `conda=${condaVersion}`;
+            }
+            yield exec.exec(`${condaExe} create -p ./miniconda ${condaBase}`);
+            core.addPath('./miniconda/bin/conda');
+            // await exec.exec('source ./miniconda/bin/activate root');
         }
         catch (error) {
             core.setFailed(error.message);

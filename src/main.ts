@@ -104,6 +104,8 @@ async function run(): Promise<void> {
 
     const condaVersion: string = core.getInput("conda-version");
 
+    core.info(`Creating base environment with Conda ${condaVersion}`);
+
     let condaBase: string;
     if (condaVersion == 'latest') {
       condaBase = 'conda';
