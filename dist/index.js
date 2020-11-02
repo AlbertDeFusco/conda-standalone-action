@@ -105,7 +105,7 @@ const tc = __importStar(__webpack_require__(784));
 // const IS_MAC: boolean = process.platform === "darwin";
 // const IS_LINUX: boolean = process.platform === "linux";
 // const IS_UNIX: boolean = IS_MAC || IS_LINUX;
-const CONDA_STANDALONE_BASE_URL = 'https://repo.anaconda.com/pkgs/misc/conda-exec';
+const CONDA_STANDALONE_BASE_URL = 'https://repo.anaconda.com/pkgs/misc/conda-execs';
 const ARCHITECTURES = {
     win32: "win-64",
     linux: "linux-64",
@@ -140,7 +140,7 @@ function downloadCondaStandalone(condaStandaloneVersion, platform) {
             try {
                 downloadPath = yield tc.downloadTool(downloadURL, 'conda.exe');
                 yield io.mv(downloadPath, 'conda.exe');
-                core.info(`Caching Conda standalone`);
+                core.info(`Caching Conda standalone ${downloadPath}`);
                 yield tc.cacheFile('conda.exe', 'conda.exe', `CondaStandalone-${condaStandaloneVersion}-${arch}`, condaStandaloneVersion, arch);
             }
             catch (err) {
@@ -154,7 +154,7 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const condaStandaloneVersion = core.getInput('conda-standalone-version');
-            downloadCondaStandalone(condaStandaloneVersion, process.platform);
+            yield downloadCondaStandalone(condaStandaloneVersion, process.platform);
             // core.debug(`Going to download Dconda${ms} milliseconds ...`) // debug is only output if you set the secret `ACTIONS_RUNNER_DEBUG` to true
             // core.debug(new Date().toTimeString())
             // await wait(parseInt(ms, 10))
