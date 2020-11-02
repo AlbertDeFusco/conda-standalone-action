@@ -1,5 +1,4 @@
 import * as core from '@actions/core'
-import * as io from '@actions/io'
 import * as tc from '@actions/tool-cache'
 // import {wait} from './wait'
 
@@ -67,8 +66,7 @@ async function downloadCondaStandalone(
   } else {
     try {
       downloadPath = await tc.downloadTool(downloadURL, 'conda.exe');
-      const moveOptions = { recursive: true, force: true };
-      await io.mv(downloadPath, 'conda.exe', moveOptions);
+      core.debug(`Download successful ${downloadPath}`)
       core.info(`Caching Conda standalone ${downloadPath}`);
 
       await tc.cacheFile('conda.exe', 'conda.exe',

@@ -98,7 +98,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(186));
-const io = __importStar(__webpack_require__(436));
 const tc = __importStar(__webpack_require__(784));
 // import {wait} from './wait'
 // const IS_WINDOWS: boolean = process.platform === "win32";
@@ -139,8 +138,7 @@ function downloadCondaStandalone(condaStandaloneVersion, platform) {
         else {
             try {
                 downloadPath = yield tc.downloadTool(downloadURL, 'conda.exe');
-                const moveOptions = { recursive: true, force: true };
-                yield io.mv(downloadPath, 'conda.exe', moveOptions);
+                core.debug(`Download successful ${downloadPath}`);
                 core.info(`Caching Conda standalone ${downloadPath}`);
                 yield tc.cacheFile('conda.exe', 'conda.exe', `CondaStandalone-${condaStandaloneVersion}-${arch}`, condaStandaloneVersion, arch);
             }
