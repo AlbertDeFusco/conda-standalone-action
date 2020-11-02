@@ -113,7 +113,7 @@ async function run(): Promise<void> {
       condaBase = `conda=${condaVersion}`;
     }
 
-    await exec.exec(`${condaExe} create -p ./miniconda ${condaBase}`);
+    await exec.exec(`./${condaExe} create -p ./miniconda ${condaBase}`);
     core.addPath('./miniconda/bin/conda');
     // await exec.exec('source ./miniconda/bin/activate root');
 
