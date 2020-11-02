@@ -22,6 +22,7 @@ jobs:
       - uses: ./
         with:
           conda-standalone-version: 'latest'
+      - name: Info
         run: |
           chmod +x conda.exe
           ./conda.exe info
