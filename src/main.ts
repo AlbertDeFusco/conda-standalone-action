@@ -1,13 +1,14 @@
-import * as core from '@actions/core';
+import * as core from '@actions/core'
 import * as io from '@actions/io'
-import * as tc from "@actions/tool-cache";
+import * as tc from '@actions/tool-cache'
 // import {wait} from './wait'
 
-const IS_WINDOWS: boolean = process.platform === "win32";
-const IS_MAC: boolean = process.platform === "darwin";
-const IS_LINUX: boolean = process.platform === "linux";
-const IS_UNIX: boolean = IS_MAC || IS_LINUX;
-const CONDA_STANDALONE_BASE_URL: string = "https://repo.anaconda.com/pkgs/misc/conda-exec";
+// const IS_WINDOWS: boolean = process.platform === "win32";
+// const IS_MAC: boolean = process.platform === "darwin";
+// const IS_LINUX: boolean = process.platform === "linux";
+// const IS_UNIX: boolean = IS_MAC || IS_LINUX;
+const CONDA_STANDALONE_BASE_URL =
+  'https://repo.anaconda.com/pkgs/misc/conda-exec'
 
 interface ISucceedResult {
   ok: true;
@@ -33,11 +34,11 @@ const ARCHITECTURES: IArchitectures = {
   darwin: "osx-64"
 };
 
-const OS_NAMES: IOperatingSystems = {
-  win32: "Windows",
-  darwin: "MacOSX",
-  linux: "Linux"
-};
+// const OS_NAMES: IOperatingSystems = {
+//   win32: "Windows",
+//   darwin: "MacOSX",
+//   linux: "Linux"
+// };
 
 /**
  * Download specific version miniconda defined by version, arch and python major version
