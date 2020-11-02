@@ -1,9 +1,10 @@
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
+import * as io from '@actions/io';
 import * as fs from "fs";
 import * as tc from '@actions/tool-cache';
 import { executionAsyncId } from 'async_hooks';
-// import {wait} from './wait'
+import { isObject } from 'util';
 
 // const IS_WINDOWS: boolean = process.platform === "win32";
 // const IS_MAC: boolean = process.platform === "darwin";
@@ -58,21 +59,23 @@ async function downloadCondaStandalone(
   }
 
   const downloadURL = `${CONDA_STANDALONE_BASE_URL}/conda-${condaStandaloneVersion}-${arch}.exe`;
-  core.info(`Downloading Conda standalone from: ${downloadURL}`)
+  core.info(`Downloading Conda standalone from: ${downloadURL}`);
+
+  io.mkdirP('/opt/conda/bin');
 
   // Look for cache to use
-  const cachedCondaStandalone = tc.find('conda.exe', condaStandaloneVersion, arch);
+  const cachedCondaStandalone = tc.find('/opt/conda/bin/conda.exe', condaStandaloneVersion, arch);
   if (cachedCondaStandalone) {
     core.info(`Found cached Conda standalone at ${cachedCondaStandalone}`);
     downloadPath = cachedCondaStandalone;
   } else {
     try {
-      downloadPath = await tc.downloadTool(downloadURL, 'conda.exe');
+      downloadPath = await tc.downloadTool(downloadURL, '/opt/conda/bin/conda.exe');
       core.debug(`Download successful ${downloadPath}`)
       core.info(`Caching Conda standalone ${downloadPath}`);
 
       await tc.cacheFile(
-        "conda.exe",
+        "/opt/conda/bin/conda.exe",
         "conda.exe",
         `CondaStandalone-${condaStandaloneVersion}-${arch}`,
         condaStandaloneVersion,
@@ -101,7 +104,6 @@ async function run(): Promise<void> {
 
     const condaExe: string = result.data;
 
-    // await exec.exec(`chmod +x ${condaExe}`);
     fs.chmodSync(condaExe, 0o755);
 
     const condaVersion: string = core.getInput("conda-version");
@@ -115,7 +117,9 @@ async function run(): Promise<void> {
       condaBase = `conda=${condaVersion}`;
     }
 
-    // await exec.exec(`/home/runner/${condaExe} create -p ./miniconda ${condaBase}`);
+    core.addPath('/opt/conda/bin');
+    await exec.exec(`conda.exe create -p /opt/conda/miniconda ${condaBase}`);
+    await exec.exec(`/opt/conda/miniconda/bin/conda init bash`);
     // core.addPath('./miniconda/bin');
     // await exec.exec('source ./miniconda/bin/activate root');
 

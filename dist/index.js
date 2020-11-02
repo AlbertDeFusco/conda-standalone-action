@@ -98,9 +98,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(186));
+const exec = __importStar(__webpack_require__(514));
+const io = __importStar(__webpack_require__(436));
 const fs = __importStar(__webpack_require__(747));
 const tc = __importStar(__webpack_require__(784));
-// import {wait} from './wait'
 // const IS_WINDOWS: boolean = process.platform === "win32";
 // const IS_MAC: boolean = process.platform === "darwin";
 // const IS_LINUX: boolean = process.platform === "linux";
@@ -130,18 +131,19 @@ function downloadCondaStandalone(condaStandaloneVersion, platform) {
         }
         const downloadURL = `${CONDA_STANDALONE_BASE_URL}/conda-${condaStandaloneVersion}-${arch}.exe`;
         core.info(`Downloading Conda standalone from: ${downloadURL}`);
+        io.mkdirP('/opt/conda/bin');
         // Look for cache to use
-        const cachedCondaStandalone = tc.find('conda.exe', condaStandaloneVersion, arch);
+        const cachedCondaStandalone = tc.find('/opt/conda/bin/conda.exe', condaStandaloneVersion, arch);
         if (cachedCondaStandalone) {
             core.info(`Found cached Conda standalone at ${cachedCondaStandalone}`);
             downloadPath = cachedCondaStandalone;
         }
         else {
             try {
-                downloadPath = yield tc.downloadTool(downloadURL, 'conda.exe');
+                downloadPath = yield tc.downloadTool(downloadURL, '/opt/conda/bin/conda.exe');
                 core.debug(`Download successful ${downloadPath}`);
                 core.info(`Caching Conda standalone ${downloadPath}`);
-                yield tc.cacheFile("conda.exe", "conda.exe", `CondaStandalone-${condaStandaloneVersion}-${arch}`, condaStandaloneVersion, arch);
+                yield tc.cacheFile("/opt/conda/bin/conda.exe", "conda.exe", `CondaStandalone-${condaStandaloneVersion}-${arch}`, condaStandaloneVersion, arch);
             }
             catch (err) {
                 return { ok: false, error: err };
@@ -159,7 +161,6 @@ function run() {
                 throw result.error;
             }
             const condaExe = result.data;
-            // await exec.exec(`chmod +x ${condaExe}`);
             fs.chmodSync(condaExe, 0o755);
             const condaVersion = core.getInput("conda-version");
             core.info(`Creating base environment with Conda ${condaVersion}`);
@@ -170,7 +171,9 @@ function run() {
             else {
                 condaBase = `conda=${condaVersion}`;
             }
-            // await exec.exec(`/home/runner/${condaExe} create -p ./miniconda ${condaBase}`);
+            core.addPath('/opt/conda/bin');
+            yield exec.exec(`conda.exe create -p /opt/conda/miniconda ${condaBase}`);
+            yield exec.exec(`/opt/conda/miniconda/bin/conda init bash`);
             // core.addPath('./miniconda/bin');
             // await exec.exec('source ./miniconda/bin/activate root');
         }
