@@ -6,6 +6,10 @@ inputs:
     required: false
     description: 'Version of the Conda standalone executable to install'
     default: 'latest'
+  conda-version:
+    required: true
+    description: "Version of Conda to be installed in base environment"
+    default: 'latest'
 runs:
   using: 'node12'
   main: 'dist/index.js'

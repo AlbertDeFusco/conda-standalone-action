@@ -24,6 +24,4 @@ jobs:
           conda-standalone-version: 'latest'
       - name: Info
         run: |
-          ls
-          chmod +x conda.exe
-          ./conda.exe info
+          which conda

@@ -1,13 +1,14 @@
-import * as core from '@actions/core'
-import * as tc from '@actions/tool-cache'
+import * as core from '@actions/core';
+import * as exec from '@actions/exec';
+import * as tc from '@actions/tool-cache';
+import { executionAsyncId } from 'async_hooks';
 // import {wait} from './wait'
 
 // const IS_WINDOWS: boolean = process.platform === "win32";
 // const IS_MAC: boolean = process.platform === "darwin";
 // const IS_LINUX: boolean = process.platform === "linux";
 // const IS_UNIX: boolean = IS_MAC || IS_LINUX;
-const CONDA_STANDALONE_BASE_URL =
-  'https://repo.anaconda.com/pkgs/misc/conda-execs'
+const CONDA_STANDALONE_BASE_URL = 'https://repo.anaconda.com/pkgs/misc/conda-execs';
 
 interface ISucceedResult {
   ok: true;
@@ -69,9 +70,13 @@ async function downloadCondaStandalone(
       core.debug(`Download successful ${downloadPath}`)
       core.info(`Caching Conda standalone ${downloadPath}`);
 
-      await tc.cacheFile('conda.exe', 'conda.exe',
+      await tc.cacheFile(
+        "conda.exe",
+        "conda.exe",
         `CondaStandalone-${condaStandaloneVersion}-${arch}`,
-        condaStandaloneVersion, arch);
+        condaStandaloneVersion,
+        arch
+      );
     } catch (err) {
       return {ok: false, error: err};
     }
@@ -82,21 +87,37 @@ async function downloadCondaStandalone(
 
 async function run(): Promise<void> {
   try {
-    const condaStandaloneVersion: string = core.getInput('conda-standalone-version');
-    const result = await downloadCondaStandalone(condaStandaloneVersion, process.platform);
+    const condaStandaloneVersion: string = core.getInput(
+      "conda-standalone-version"
+    );
+    const result = await downloadCondaStandalone(
+      condaStandaloneVersion,
+      process.platform
+    );
     if (!result.ok) {
       throw result.error;
     }
-    // core.debug(`Going to download Dconda${ms} milliseconds ...`) // debug is only output if you set the secret `ACTIONS_RUNNER_DEBUG` to true
 
-    // core.debug(new Date().toTimeString())
-    // await wait(parseInt(ms, 10))
-    // core.debug(new Date().toTimeString())
+    const condaExe: string = result.data;
 
-    // core.setOutput('time', new Date().toTimeString())
+    await exec.exec(`chmod +x ${condaExe}`);
+
+    const condaVersion: string = core.getInput("conda-version");
+
+    let condaBase: string;
+    if (condaVersion == 'latest') {
+      condaBase = 'conda';
+    } else {
+      condaBase = `conda=${condaVersion}`;
+    }
+
+    await exec.exec(`${condaExe} create -p ./miniconda ${condaBase}`);
+    core.addPath('./miniconda/bin/conda');
+    // await exec.exec('source ./miniconda/bin/activate root');
+
   } catch (error) {
-    core.setFailed(error.message)
+    core.setFailed(error.message);
   }
 }
 
-run()
+run();
