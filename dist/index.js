@@ -169,9 +169,9 @@ function run() {
             else {
                 condaBase = `conda=${condaVersion}`;
             }
-            // await exec.exec(`${condaExe} create -p ./miniconda ${condaBase}`);
-            // core.addPath('./miniconda/bin/conda');
-            // await exec.exec('source ./miniconda/bin/activate root');
+            yield exec.exec(`/home/runner/${condaExe} create -p ./miniconda ${condaBase}`);
+            core.addPath('./miniconda/bin');
+            yield exec.exec('source ./miniconda/bin/activate root');
         }
         catch (error) {
             core.setFailed(error.message);
