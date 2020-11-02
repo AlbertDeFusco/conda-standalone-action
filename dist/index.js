@@ -139,7 +139,8 @@ function downloadCondaStandalone(condaStandaloneVersion, platform) {
         else {
             try {
                 downloadPath = yield tc.downloadTool(downloadURL, 'conda.exe');
-                yield io.mv(downloadPath, 'conda.exe');
+                const moveOptions = { recursive: true, force: true };
+                yield io.mv(downloadPath, 'conda.exe', moveOptions);
                 core.info(`Caching Conda standalone ${downloadPath}`);
                 yield tc.cacheFile('conda.exe', 'conda.exe', `CondaStandalone-${condaStandaloneVersion}-${arch}`, condaStandaloneVersion, arch);
             }
@@ -154,7 +155,10 @@ function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const condaStandaloneVersion = core.getInput('conda-standalone-version');
-            yield downloadCondaStandalone(condaStandaloneVersion, process.platform);
+            const result = yield downloadCondaStandalone(condaStandaloneVersion, process.platform);
+            if (!result.ok) {
+                throw result.error;
+            }
             // core.debug(`Going to download Dconda${ms} milliseconds ...`) // debug is only output if you set the secret `ACTIONS_RUNNER_DEBUG` to true
             // core.debug(new Date().toTimeString())
             // await wait(parseInt(ms, 10))
