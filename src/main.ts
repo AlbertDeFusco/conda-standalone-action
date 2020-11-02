@@ -84,7 +84,7 @@ async function downloadCondaStandalone(
 async function run(): Promise<void> {
   try {
     const condaStandaloneVersion: string = core.getInput('conda-standalone-version');
-    downloadCondaStandalone(condaStandaloneVersion, process.platform);
+    await downloadCondaStandalone(condaStandaloneVersion, process.platform);
     // core.debug(`Going to download Dconda${ms} milliseconds ...`) // debug is only output if you set the secret `ACTIONS_RUNNER_DEBUG` to true
 
     // core.debug(new Date().toTimeString())
