@@ -110,6 +110,7 @@ const tc = __importStar(__webpack_require__(784));
 // const IS_UNIX: boolean = IS_MAC || IS_LINUX;
 const CONDA_STANDALONE_BASE_URL = 'https://repo.anaconda.com/pkgs/misc/conda-execs';
 const HOME_BIN_DIR = path.join(os.homedir(), 'bin');
+const IS_WINDOWS = process.platform === "win32";
 const ARCHITECTURES = {
     win32: "win-64",
     linux: "linux-64",
@@ -177,7 +178,10 @@ function run() {
             }
             // core.addPath(CONDA_STANDALONE_DIR);
             yield exec.exec(`${condaExePath} create -y -p ${os.homedir()}/miniconda ${condaBase}`);
-            if (condaVersion == 'latest') { // or >4.6
+            if (IS_WINDOWS) {
+                yield exec.exec(`${os.homedir()}\\miniconda\\bin\\conda.bat init bash`);
+            }
+            else {
                 yield exec.exec(`${os.homedir()}/miniconda/bin/conda init bash`);
             }
             // core.addPath('./miniconda/bin');

@@ -14,6 +14,7 @@ import { isObject } from 'util';
 // const IS_UNIX: boolean = IS_MAC || IS_LINUX;
 const CONDA_STANDALONE_BASE_URL: string = 'https://repo.anaconda.com/pkgs/misc/conda-execs';
 const HOME_BIN_DIR: string = path.join(os.homedir(), 'bin');
+const IS_WINDOWS: boolean = process.platform === "win32";
 
 interface ISucceedResult {
   ok: true;
@@ -124,7 +125,9 @@ async function run(): Promise<void> {
     // core.addPath(CONDA_STANDALONE_DIR);
     await exec.exec(`${condaExePath} create -y -p ${os.homedir()}/miniconda ${condaBase}`);
 
-    if (condaVersion == 'latest') { // or >4.6
+    if (IS_WINDOWS) {
+      await exec.exec(`${os.homedir()}\\miniconda\\bin\\conda.bat init bash`);
+    } else {
       await exec.exec(`${os.homedir()}/miniconda/bin/conda init bash`);
     }
     // core.addPath('./miniconda/bin');
