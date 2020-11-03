@@ -1,7 +1,9 @@
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 import * as io from '@actions/io';
+import * as os from "os";
 import * as fs from "fs";
+import * as path from "path";
 import * as tc from '@actions/tool-cache';
 import { executionAsyncId } from 'async_hooks';
 import { isObject } from 'util';
@@ -10,8 +12,8 @@ import { isObject } from 'util';
 // const IS_MAC: boolean = process.platform === "darwin";
 // const IS_LINUX: boolean = process.platform === "linux";
 // const IS_UNIX: boolean = IS_MAC || IS_LINUX;
-const CONDA_STANDALONE_BASE_URL = 'https://repo.anaconda.com/pkgs/misc/conda-execs';
-const CONDA_STANDALONE_DIR = '/opt/conda-standalone'
+const CONDA_STANDALONE_BASE_URL: string = 'https://repo.anaconda.com/pkgs/misc/conda-execs';
+const HOME_BIN_DIR: string = path.join(os.homedir(), 'bin');
 
 interface ISucceedResult {
   ok: true;
@@ -62,21 +64,22 @@ async function downloadCondaStandalone(
   const downloadURL = `${CONDA_STANDALONE_BASE_URL}/conda-${condaStandaloneVersion}-${arch}.exe`;
   core.info(`Downloading Conda standalone from: ${downloadURL}`);
 
-  await io.mkdirP(`${CONDA_STANDALONE_DIR}/bin`);
+  await io.mkdirP(HOME_BIN_DIR);
+  const condaPath = path.join(HOME_BIN_DIR, 'conda.exe');
 
   // Look for cache to use
-  const cachedCondaStandalone = tc.find(`${CONDA_STANDALONE_DIR}/bin/conda.exe`, condaStandaloneVersion, arch);
+  const cachedCondaStandalone = tc.find(condaPath, condaStandaloneVersion, arch);
   if (cachedCondaStandalone) {
     core.info(`Found cached Conda standalone at ${cachedCondaStandalone}`);
     downloadPath = cachedCondaStandalone;
   } else {
     try {
-      downloadPath = await tc.downloadTool(downloadURL, `${CONDA_STANDALONE_DIR}/bin/conda.exe`);
+      downloadPath = await tc.downloadTool(downloadURL, condaPath);
       core.debug(`Download successful ${downloadPath}`)
       core.info(`Caching Conda standalone ${downloadPath}`);
 
       await tc.cacheFile(
-        `${CONDA_STANDALONE_DIR}/bin/conda.exe`,
+        condaPath,
         "conda.exe",
         `CondaStandalone-${condaStandaloneVersion}-${arch}`,
         condaStandaloneVersion,
@@ -103,9 +106,9 @@ async function run(): Promise<void> {
       throw result.error;
     }
 
-    const condaExe: string = result.data;
+    const condaExePath: string = result.data;
 
-    fs.chmodSync(condaExe, 0o755);
+    fs.chmodSync(condaExePath, 0o755);
 
     const condaVersion: string = core.getInput("conda-version");
 
@@ -119,8 +122,8 @@ async function run(): Promise<void> {
     }
 
     // core.addPath(CONDA_STANDALONE_DIR);
-    await exec.exec(`${CONDA_STANDALONE_DIR}/bin/conda.exe create -p ${CONDA_STANDALONE_DIR}/miniconda ${condaBase}`);
-    await exec.exec(`${CONDA_STANDALONE_DIR}/miniconda/bin/conda init bash`);
+    await exec.exec(`${condaExePath} create -p ${os.homedir()}/miniconda ${condaBase}`);
+    await exec.exec(`${os.homedir()}/miniconda/bin/conda init bash`);
     // core.addPath('./miniconda/bin');
     // await exec.exec('source ./miniconda/bin/activate root');
 

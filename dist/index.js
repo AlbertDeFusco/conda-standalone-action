@@ -100,14 +100,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const core = __importStar(__webpack_require__(186));
 const exec = __importStar(__webpack_require__(514));
 const io = __importStar(__webpack_require__(436));
+const os = __importStar(__webpack_require__(87));
 const fs = __importStar(__webpack_require__(747));
+const path = __importStar(__webpack_require__(622));
 const tc = __importStar(__webpack_require__(784));
 // const IS_WINDOWS: boolean = process.platform === "win32";
 // const IS_MAC: boolean = process.platform === "darwin";
 // const IS_LINUX: boolean = process.platform === "linux";
 // const IS_UNIX: boolean = IS_MAC || IS_LINUX;
 const CONDA_STANDALONE_BASE_URL = 'https://repo.anaconda.com/pkgs/misc/conda-execs';
-const CONDA_STANDALONE_DIR = '/opt/conda-standalone';
+const HOME_BIN_DIR = path.join(os.homedir(), 'bin');
 const ARCHITECTURES = {
     win32: "win-64",
     linux: "linux-64",
@@ -132,19 +134,20 @@ function downloadCondaStandalone(condaStandaloneVersion, platform) {
         }
         const downloadURL = `${CONDA_STANDALONE_BASE_URL}/conda-${condaStandaloneVersion}-${arch}.exe`;
         core.info(`Downloading Conda standalone from: ${downloadURL}`);
-        yield io.mkdirP(`${CONDA_STANDALONE_DIR}/bin`);
+        yield io.mkdirP(HOME_BIN_DIR);
+        const condaPath = path.join(HOME_BIN_DIR, 'conda.exe');
         // Look for cache to use
-        const cachedCondaStandalone = tc.find(`${CONDA_STANDALONE_DIR}/bin/conda.exe`, condaStandaloneVersion, arch);
+        const cachedCondaStandalone = tc.find(condaPath, condaStandaloneVersion, arch);
         if (cachedCondaStandalone) {
             core.info(`Found cached Conda standalone at ${cachedCondaStandalone}`);
             downloadPath = cachedCondaStandalone;
         }
         else {
             try {
-                downloadPath = yield tc.downloadTool(downloadURL, `${CONDA_STANDALONE_DIR}/bin/conda.exe`);
+                downloadPath = yield tc.downloadTool(downloadURL, condaPath);
                 core.debug(`Download successful ${downloadPath}`);
                 core.info(`Caching Conda standalone ${downloadPath}`);
-                yield tc.cacheFile(`${CONDA_STANDALONE_DIR}/bin/conda.exe`, "conda.exe", `CondaStandalone-${condaStandaloneVersion}-${arch}`, condaStandaloneVersion, arch);
+                yield tc.cacheFile(condaPath, "conda.exe", `CondaStandalone-${condaStandaloneVersion}-${arch}`, condaStandaloneVersion, arch);
             }
             catch (err) {
                 return { ok: false, error: err };
@@ -161,8 +164,8 @@ function run() {
             if (!result.ok) {
                 throw result.error;
             }
-            const condaExe = result.data;
-            fs.chmodSync(condaExe, 0o755);
+            const condaExePath = result.data;
+            fs.chmodSync(condaExePath, 0o755);
             const condaVersion = core.getInput("conda-version");
             core.info(`Creating base environment with Conda ${condaVersion}`);
             let condaBase;
@@ -173,8 +176,8 @@ function run() {
                 condaBase = `conda=${condaVersion}`;
             }
             // core.addPath(CONDA_STANDALONE_DIR);
-            yield exec.exec(`${CONDA_STANDALONE_DIR}/bin/conda.exe create -p ${CONDA_STANDALONE_DIR}/miniconda ${condaBase}`);
-            yield exec.exec(`${CONDA_STANDALONE_DIR}/miniconda/bin/conda init bash`);
+            yield exec.exec(`${condaExePath} create -p ${os.homedir()}/miniconda ${condaBase}`);
+            yield exec.exec(`${os.homedir()}/miniconda/bin/conda init bash`);
             // core.addPath('./miniconda/bin');
             // await exec.exec('source ./miniconda/bin/activate root');
         }
