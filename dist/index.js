@@ -179,7 +179,7 @@ function run() {
             yield exec.exec(`${condaExePath} create -y -p ${os.homedir()}/miniconda ${condaBase}`);
             core.addPath(path.join(os.homedir(), 'miniconda', 'bin'));
             if (IS_WINDOWS) {
-                yield exec.exec(`${os.homedir()}\\miniconda\\bin\\conda.bat init bash`);
+                yield exec.exec(`${os.homedir()}\\miniconda\\Scripts\\conda.bat init bash`);
             }
             else {
                 yield exec.exec(`${os.homedir()}/miniconda/bin/conda init bash`);

@@ -126,7 +126,7 @@ async function run(): Promise<void> {
 
     core.addPath(path.join(os.homedir(), 'miniconda', 'bin'));
     if (IS_WINDOWS) {
-      await exec.exec(`${os.homedir()}\\miniconda\\bin\\conda.bat init bash`);
+      await exec.exec(`${os.homedir()}\\miniconda\\Scripts\\conda.bat init bash`);
     } else {
       await exec.exec(`${os.homedir()}/miniconda/bin/conda init bash`);
     }
