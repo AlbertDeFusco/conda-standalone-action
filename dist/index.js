@@ -176,8 +176,10 @@ function run() {
                 condaBase = `conda=${condaVersion}`;
             }
             // core.addPath(CONDA_STANDALONE_DIR);
-            yield exec.exec(`${condaExePath} create -p ${os.homedir()}/miniconda ${condaBase}`);
-            yield exec.exec(`${os.homedir()}/miniconda/bin/conda init bash`);
+            yield exec.exec(`${condaExePath} create -y -p ${os.homedir()}/miniconda ${condaBase}`);
+            if (condaVersion == 'latest') { // or >4.6
+                yield exec.exec(`${os.homedir()}/miniconda/bin/conda init bash`);
+            }
             // core.addPath('./miniconda/bin');
             // await exec.exec('source ./miniconda/bin/activate root');
         }

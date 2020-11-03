@@ -122,8 +122,11 @@ async function run(): Promise<void> {
     }
 
     // core.addPath(CONDA_STANDALONE_DIR);
-    await exec.exec(`${condaExePath} create -p ${os.homedir()}/miniconda ${condaBase}`);
-    await exec.exec(`${os.homedir()}/miniconda/bin/conda init bash`);
+    await exec.exec(`${condaExePath} create -y -p ${os.homedir()}/miniconda ${condaBase}`);
+
+    if (condaVersion == 'latest') { // or >4.6
+      await exec.exec(`${os.homedir()}/miniconda/bin/conda init bash`);
+    }
     // core.addPath('./miniconda/bin');
     // await exec.exec('source ./miniconda/bin/activate root');
 
