@@ -124,10 +124,11 @@ async function run(): Promise<void> {
 
     await exec.exec(`${condaExePath} create -y -p ${os.homedir()}/miniconda ${condaBase}`);
 
-    core.addPath(path.join(os.homedir(), 'miniconda', 'bin'));
     if (IS_WINDOWS) {
-      await exec.exec(`${os.homedir()}\\miniconda\\Scripts\\conda.bat init bash`);
+      core.addPath(path.join(os.homedir(), 'miniconda', 'Scripts'));
+      await exec.exec(`${os.homedir()}\\miniconda\\Scripts\\conda init bash`);
     } else {
+      core.addPath(path.join(os.homedir(), 'miniconda', 'bin'));
       await exec.exec(`${os.homedir()}/miniconda/bin/conda init bash`);
     }
     // core.addPath('./miniconda/bin');
