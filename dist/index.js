@@ -176,8 +176,8 @@ function run() {
             else {
                 condaBase = `conda=${condaVersion}`;
             }
-            // core.addPath(CONDA_STANDALONE_DIR);
             yield exec.exec(`${condaExePath} create -y -p ${os.homedir()}/miniconda ${condaBase}`);
+            core.addPath(path.join(os.homedir(), 'miniconda', 'bin'));
             if (IS_WINDOWS) {
                 yield exec.exec(`${os.homedir()}\\miniconda\\bin\\conda.bat init bash`);
             }
