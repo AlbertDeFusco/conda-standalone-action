@@ -107,6 +107,7 @@ const tc = __importStar(__webpack_require__(784));
 // const IS_LINUX: boolean = process.platform === "linux";
 // const IS_UNIX: boolean = IS_MAC || IS_LINUX;
 const CONDA_STANDALONE_BASE_URL = 'https://repo.anaconda.com/pkgs/misc/conda-execs';
+const CONDA_STANDALONE_DIR = '/opt/conda-standalone';
 const ARCHITECTURES = {
     win32: "win-64",
     linux: "linux-64",
@@ -131,19 +132,19 @@ function downloadCondaStandalone(condaStandaloneVersion, platform) {
         }
         const downloadURL = `${CONDA_STANDALONE_BASE_URL}/conda-${condaStandaloneVersion}-${arch}.exe`;
         core.info(`Downloading Conda standalone from: ${downloadURL}`);
-        io.mkdirP('/opt/conda/bin');
+        yield io.mkdirP(`${CONDA_STANDALONE_DIR}/bin`);
         // Look for cache to use
-        const cachedCondaStandalone = tc.find('/opt/conda/bin/conda.exe', condaStandaloneVersion, arch);
+        const cachedCondaStandalone = tc.find(`${CONDA_STANDALONE_DIR}/bin/conda.exe`, condaStandaloneVersion, arch);
         if (cachedCondaStandalone) {
             core.info(`Found cached Conda standalone at ${cachedCondaStandalone}`);
             downloadPath = cachedCondaStandalone;
         }
         else {
             try {
-                downloadPath = yield tc.downloadTool(downloadURL, '/opt/conda/bin/conda.exe');
+                downloadPath = yield tc.downloadTool(downloadURL, `${CONDA_STANDALONE_DIR}/bin/conda.exe`);
                 core.debug(`Download successful ${downloadPath}`);
                 core.info(`Caching Conda standalone ${downloadPath}`);
-                yield tc.cacheFile("/opt/conda/bin/conda.exe", "conda.exe", `CondaStandalone-${condaStandaloneVersion}-${arch}`, condaStandaloneVersion, arch);
+                yield tc.cacheFile(`${CONDA_STANDALONE_DIR}/bin/conda.exe`, "conda.exe", `CondaStandalone-${condaStandaloneVersion}-${arch}`, condaStandaloneVersion, arch);
             }
             catch (err) {
                 return { ok: false, error: err };
@@ -171,9 +172,9 @@ function run() {
             else {
                 condaBase = `conda=${condaVersion}`;
             }
-            core.addPath('/opt/conda/bin');
-            yield exec.exec(`conda.exe create -p /opt/conda/miniconda ${condaBase}`);
-            yield exec.exec(`/opt/conda/miniconda/bin/conda init bash`);
+            // core.addPath(CONDA_STANDALONE_DIR);
+            yield exec.exec(`${CONDA_STANDALONE_DIR}/bin/conda.exe create -p ${CONDA_STANDALONE_DIR}/miniconda ${condaBase}`);
+            yield exec.exec(`${CONDA_STANDALONE_DIR}/miniconda/bin/conda init bash`);
             // core.addPath('./miniconda/bin');
             // await exec.exec('source ./miniconda/bin/activate root');
         }

@@ -26,8 +26,8 @@ jobs:
       - uses: ./
         with:
           conda-standalone-version: 'latest'
+          conda-version: 'latest'
       - name: Info
-        shell: bash
+        shell: bash -l {0}
         run: |
-          pwd
-          ls -l ./conda.exe
+          conda info
