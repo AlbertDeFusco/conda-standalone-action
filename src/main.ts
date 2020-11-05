@@ -1,12 +1,11 @@
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 import * as io from '@actions/io';
+import * as semver from 'semver';
 import * as os from "os";
 import * as fs from "fs";
 import * as path from "path";
 import * as tc from '@actions/tool-cache';
-import { executionAsyncId } from 'async_hooks';
-import { isObject } from 'util';
 
 // const IS_WINDOWS: boolean = process.platform === "win32";
 // const IS_MAC: boolean = process.platform === "darwin";
@@ -46,6 +45,16 @@ const ARCHITECTURES: IArchitectures = {
 //   linux: "Linux"
 // };
 
+
+/**
+ * Determine if this version of Conda supports conda init
+ * 
+ * @param condaVersion
+ */
+function hasCondaInit(condaVersion: string): boolean {
+  return semver.satisfies(condaVersion, "<4.6.0");
+}
+
 /**
  * Download specific version miniconda defined by version, arch and python major version
  *
@@ -66,7 +75,7 @@ async function downloadCondaStandalone(
   core.info(`Downloading Conda standalone from: ${downloadURL}`);
 
   await io.mkdirP(HOME_BIN_DIR);
-  const condaPath = path.join(HOME_BIN_DIR, 'conda.exe');
+  const condaPath = path.join(HOME_BIN_DIR, "conda.exe");
 
   // Look for cache to use
   const cachedCondaStandalone = tc.find(condaPath, condaStandaloneVersion, arch);
@@ -125,11 +134,15 @@ async function run(): Promise<void> {
     await exec.exec(`${condaExePath} create -y -p ${os.homedir()}/miniconda ${condaBase}`);
 
     if (IS_WINDOWS) {
-      core.addPath(path.join(os.homedir(), 'miniconda', 'Scripts'));
-      await exec.exec(`${os.homedir()}\\miniconda\\Scripts\\conda init bash`);
+      if (hasCondaInit(condaVersion)) {
+        core.addPath(path.join(os.homedir(), 'miniconda', 'Scripts'));
+        await exec.exec(`${os.homedir()}\\miniconda\\Scripts\\conda init bash`);
+      }
     } else {
-      core.addPath(path.join(os.homedir(), 'miniconda', 'bin'));
-      await exec.exec(`${os.homedir()}/miniconda/bin/conda init bash`);
+      if (hasCondaInit(condaVersion)) {
+        core.addPath(path.join(os.homedir(), 'miniconda', 'bin'));
+        await exec.exec(`${os.homedir()}/miniconda/bin/conda init bash`);
+      }
     }
     // core.addPath('./miniconda/bin');
     // await exec.exec('source ./miniconda/bin/activate root');
