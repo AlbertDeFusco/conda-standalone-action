@@ -501,6 +501,7 @@ const exec = __importStar(__webpack_require__(514));
 const io = __importStar(__webpack_require__(436));
 const semver = __importStar(__webpack_require__(383));
 const os = __importStar(__webpack_require__(87));
+const fs = __importStar(__webpack_require__(747));
 const path = __importStar(__webpack_require__(622));
 const tc = __importStar(__webpack_require__(784));
 // const IS_WINDOWS: boolean = process.platform === "win32";
@@ -567,18 +568,13 @@ function downloadCondaStandalone(condaStandaloneVersion, platform) {
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            //   const condaStandaloneVersion: string = core.getInput(
-            //     "conda-standalone-version"
-            //   );
-            //   const result = await downloadCondaStandalone(
-            //     condaStandaloneVersion,
-            //     process.platform
-            //   );
-            //   if (!result.ok) {
-            //     throw result.error;
-            //   }
-            //   const condaExePath: string = result.data;
-            //   fs.chmodSync(condaExePath, 0o755);
+            const condaStandaloneVersion = core.getInput("conda-standalone-version");
+            const result = yield downloadCondaStandalone(condaStandaloneVersion, process.platform);
+            if (!result.ok) {
+                throw result.error;
+            }
+            const condaExePath = result.data;
+            fs.chmodSync(condaExePath, 0o755);
             const condaVersion = core.getInput("conda-version");
             core.info(`Creating base environment with Conda ${condaVersion}`);
             let condaBase;
@@ -588,8 +584,7 @@ function run() {
             else {
                 condaBase = `conda=${condaVersion}`;
             }
-            // await exec.exec(`${condaExePath} create -y -p ${os.homedir()}/miniconda ${condaBase}`);
-            yield exec.exec(`conda create -y -p ${os.homedir()}/miniconda ${condaBase}`);
+            yield exec.exec(`${condaExePath} create -y -p ${os.homedir()}/miniconda ${condaBase}`);
             if (IS_WINDOWS) {
                 core.addPath(path.join(os.homedir(), 'miniconda', 'Scripts'));
                 if (hasCondaInit(condaVersion)) {

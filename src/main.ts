@@ -105,20 +105,20 @@ async function downloadCondaStandalone(
 
 async function run(): Promise<void> {
   try {
-  //   const condaStandaloneVersion: string = core.getInput(
-  //     "conda-standalone-version"
-  //   );
-  //   const result = await downloadCondaStandalone(
-  //     condaStandaloneVersion,
-  //     process.platform
-  //   );
-  //   if (!result.ok) {
-  //     throw result.error;
-  //   }
+    const condaStandaloneVersion: string = core.getInput(
+      "conda-standalone-version"
+    );
+    const result = await downloadCondaStandalone(
+      condaStandaloneVersion,
+      process.platform
+    );
+    if (!result.ok) {
+      throw result.error;
+    }
 
-  //   const condaExePath: string = result.data;
+    const condaExePath: string = result.data;
 
-  //   fs.chmodSync(condaExePath, 0o755);
+    fs.chmodSync(condaExePath, 0o755);
 
     const condaVersion: string = core.getInput("conda-version");
 
@@ -131,8 +131,7 @@ async function run(): Promise<void> {
       condaBase = `conda=${condaVersion}`;
     }
 
-    // await exec.exec(`${condaExePath} create -y -p ${os.homedir()}/miniconda ${condaBase}`);
-    await exec.exec(`conda create -y -p ${os.homedir()}/miniconda ${condaBase}`);
+    await exec.exec(`${condaExePath} create -y -p ${os.homedir()}/miniconda ${condaBase}`);
 
     if (IS_WINDOWS) {
       core.addPath(path.join(os.homedir(), 'miniconda', 'Scripts'));
