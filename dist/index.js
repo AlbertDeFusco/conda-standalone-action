@@ -527,7 +527,7 @@ const ARCHITECTURES = {
  * @param condaVersion
  */
 function hasCondaInit(condaVersion) {
-    return semver.satisfies(condaVersion, ">=4.6.0");
+    return semver.satisfies(semver.coerce(condaVersion) || condaVersion, ">=4.6.0");
 }
 /**
  * Download specific version miniconda defined by version, arch and python major version

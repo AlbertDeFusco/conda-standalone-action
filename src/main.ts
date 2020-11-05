@@ -52,7 +52,7 @@ const ARCHITECTURES: IArchitectures = {
  * @param condaVersion
  */
 function hasCondaInit(condaVersion: string): boolean {
-  return semver.satisfies(condaVersion, ">=4.6.0");
+  return semver.satisfies(semver.coerce(condaVersion) || condaVersion, ">=4.6.0");
 }
 
 /**
