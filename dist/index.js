@@ -586,15 +586,21 @@ function run() {
             }
             yield exec.exec(`${condaExePath} create -y -p ${os.homedir()}/miniconda ${condaBase}`);
             if (IS_WINDOWS) {
+                core.addPath(path.join(os.homedir(), 'miniconda', 'Scripts'));
                 if (hasCondaInit(condaVersion)) {
-                    core.addPath(path.join(os.homedir(), 'miniconda', 'Scripts'));
                     yield exec.exec(`${os.homedir()}\\miniconda\\Scripts\\conda init bash`);
+                }
+                else {
+                    yield exec.exec(`source ${os.homedir()}\\miniconda\\Scripts\\activate root`);
                 }
             }
             else {
+                core.addPath(path.join(os.homedir(), 'miniconda', 'bin'));
                 if (hasCondaInit(condaVersion)) {
-                    core.addPath(path.join(os.homedir(), 'miniconda', 'bin'));
                     yield exec.exec(`${os.homedir()}/miniconda/bin/conda init bash`);
+                }
+                else {
+                    yield exec.exec(`source ${os.homedir()}/miniconda/bin/activate root`);
                 }
             }
             // core.addPath('./miniconda/bin');
