@@ -138,14 +138,14 @@ async function run(): Promise<void> {
       if (hasCondaInit(condaVersion)) {
         await exec.exec(`${os.homedir()}\\miniconda\\Scripts\\conda init bash`);
       } else {
-        await exec.exec(`source ${os.homedir()}\\miniconda\\Scripts\\activate root`);
+        // await exec.exec(`source ${os.homedir()}\\miniconda\\Scripts\\activate root`);
       }
     } else {
       core.addPath(path.join(os.homedir(), 'miniconda', 'bin'));
       if (hasCondaInit(condaVersion)) {
         await exec.exec(`${os.homedir()}/miniconda/bin/conda init bash`);
       } else {
-        await exec.exec(`source ${os.homedir()}/miniconda/bin/activate root`);
+        // await exec.exec(`source ${os.homedir()}/miniconda/bin/activate root`);
       }
     }
     // core.addPath('./miniconda/bin');

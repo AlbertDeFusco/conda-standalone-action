@@ -591,7 +591,7 @@ function run() {
                     yield exec.exec(`${os.homedir()}\\miniconda\\Scripts\\conda init bash`);
                 }
                 else {
-                    yield exec.exec(`source ${os.homedir()}\\miniconda\\Scripts\\activate root`);
+                    // await exec.exec(`source ${os.homedir()}\\miniconda\\Scripts\\activate root`);
                 }
             }
             else {
@@ -600,7 +600,7 @@ function run() {
                     yield exec.exec(`${os.homedir()}/miniconda/bin/conda init bash`);
                 }
                 else {
-                    yield exec.exec(`source ${os.homedir()}/miniconda/bin/activate root`);
+                    // await exec.exec(`source ${os.homedir()}/miniconda/bin/activate root`);
                 }
             }
             // core.addPath('./miniconda/bin');
